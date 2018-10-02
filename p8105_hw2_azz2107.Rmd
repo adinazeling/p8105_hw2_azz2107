@@ -2,29 +2,27 @@
 title: "P8105 Homework 2"
 author: "Adina Zhang"
 date: "September 30, 2018"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyverse)
 ```
 
-## R Markdown
+# Problem 1 - NYC Transit Dataset
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r transit_df, message = FALSE}
+# Read and clean NYC Transit dataset
+transit_df <- read_csv("./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>% 
+  janitor::clean_names() %>% 
+  select(line:entry, vending, ada) %>% 
+  mutate(entry = recode(entry, "YES" = TRUE, "NO" = FALSE))
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+transit_df
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+The NYC Transit dataset includes information on the exits and entrances of various subway stations in the NYC transit network. The variables used to describe this information include railway lines, station names, locations, routes served, entries, entrance types, vending machines, and ADA compliance. Thus far, the data cleaning steps include cleaning the variable names, selecting relevant variables to keep in the dataset, and recoding the *entry* variable into a logical type (TRUE vs. FALSE). The dimension of this dataset is `r nrow(transit_df)` observations with `r ncol(transit_df)` variables.  
+  
+Tidiness depends on what information you are looking to get out of the dataset. The part of the NYC transit dataset I would consider untidy are the route numbers. The variable names of route numbers should instead be used as values, especially if you are are looking to compare individual subway stations. 
