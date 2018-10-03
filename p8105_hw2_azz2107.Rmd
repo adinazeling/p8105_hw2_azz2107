@@ -26,3 +26,18 @@ transit_df
 The NYC Transit dataset includes information on the exits and entrances of various subway stations in the NYC transit network. The variables used to describe this information include railway lines, station names, locations, routes served, entries, entrance types, vending machines, and ADA compliance. Thus far, the data cleaning steps include cleaning the variable names, selecting relevant variables to keep in the dataset, and recoding the *entry* variable into a logical type (TRUE vs. FALSE). The dimension of this dataset is `r nrow(transit_df)` observations with `r ncol(transit_df)` variables.  
   
 Tidiness depends on what information you are looking to get out of the dataset. The part of the NYC transit dataset I would consider untidy are the route numbers. The variable names of route numbers should instead be used as values, especially if you are are looking to compare individual subway stations. 
+
+* There are `r dim(distinct(transit_df, station_name, line))[1]` distinct stations.  
+* There are `r nrow(filter(transit_df, ada == TRUE))` stations that are ADA compliant.  
+* The proportion of station entrances/exits without vending that allow entry is `r nrow(filter(transit_df, vending == "NO", entry == TRUE))/nrow(filter(transit_df, vending == "NO"))`
+
+```{r reformat_route}
+# Tidy up route variables using gather
+transit_tidy_df = 
+ gather(transit_df, key = route_number, value = route_name, route1:route11)
+
+transit_tidy_df
+```
+
+* There are `r nrow(filter(distinct(transit_tidy_df, station_name, line, route_name), route_name == "A"))` distinct stations that serve the A train.
+* Of the stations that serve the A train, `r nrow(filter(distinct(transit_tidy_df, station_name, line, route_name, ada), route_name == "A", ada == TRUE))` are ADA compliant.

@@ -155,7 +155,39 @@ transit_df</code></pre>
 ## #   route4 &lt;chr&gt;, route5 &lt;chr&gt;, route6 &lt;chr&gt;, route7 &lt;chr&gt;, route8 &lt;int&gt;,
 ## #   route9 &lt;int&gt;, route10 &lt;int&gt;, route11 &lt;int&gt;, entrance_type &lt;chr&gt;,
 ## #   entry &lt;lgl&gt;, vending &lt;chr&gt;, ada &lt;lgl&gt;</code></pre>
-<p>The NYC Transit dataset includes information on the exits and entrances of various subway stations in the NYC transit network. The variables used to describe this information include railway lines, station names, locations, routes served, entries, entrance types, vending machines, and ADA compliance. Thus far, the data cleaning steps include cleaning the variable names, selecting relevant variables to keep in the dataset, and recoding the entry variable into a logical type (TRUE vs. FALSE). The dimension of this dataset is 1868 observations with 19 variables.// Tidiness depends on what information you are looking to get out of the dataset. The part of the NYC transit dataset I would consider untidy are the route numbers. The variable names of route numbers should instead be used as values, especially if you are are looking to compare individual subway stations.</p>
+<p>The NYC Transit dataset includes information on the exits and entrances of various subway stations in the NYC transit network. The variables used to describe this information include railway lines, station names, locations, routes served, entries, entrance types, vending machines, and ADA compliance. Thus far, the data cleaning steps include cleaning the variable names, selecting relevant variables to keep in the dataset, and recoding the <em>entry</em> variable into a logical type (TRUE vs. FALSE). The dimension of this dataset is 1868 observations with 19 variables.</p>
+<p>Tidiness depends on what information you are looking to get out of the dataset. The part of the NYC transit dataset I would consider untidy are the route numbers. The variable names of route numbers should instead be used as values, especially if you are are looking to compare individual subway stations.</p>
+<ul>
+<li>There are 465 distinct stations.<br />
+</li>
+<li>There are 468 stations that are ADA compliant.<br />
+</li>
+<li>The proportion of station entrances/exits without vending that allow entry is 0.3770492</li>
+</ul>
+<pre class="r"><code># Tidy up route variables using gather
+transit_tidy_df = 
+ gather(transit_df, key = route_number, value = route_name, route1:route11)
+
+transit_tidy_df</code></pre>
+<pre><code>## # A tibble: 20,548 x 10
+##    line  station_name station_latitude station_longitu~ entrance_type entry
+##    &lt;chr&gt; &lt;chr&gt;                   &lt;dbl&gt;            &lt;dbl&gt; &lt;chr&gt;         &lt;lgl&gt;
+##  1 4 Av~ 25th St                  40.7            -74.0 Stair         TRUE 
+##  2 4 Av~ 25th St                  40.7            -74.0 Stair         TRUE 
+##  3 4 Av~ 36th St                  40.7            -74.0 Stair         TRUE 
+##  4 4 Av~ 36th St                  40.7            -74.0 Stair         TRUE 
+##  5 4 Av~ 36th St                  40.7            -74.0 Stair         TRUE 
+##  6 4 Av~ 45th St                  40.6            -74.0 Stair         TRUE 
+##  7 4 Av~ 45th St                  40.6            -74.0 Stair         TRUE 
+##  8 4 Av~ 45th St                  40.6            -74.0 Stair         TRUE 
+##  9 4 Av~ 45th St                  40.6            -74.0 Stair         TRUE 
+## 10 4 Av~ 53rd St                  40.6            -74.0 Stair         TRUE 
+## # ... with 20,538 more rows, and 4 more variables: vending &lt;chr&gt;,
+## #   ada &lt;lgl&gt;, route_number &lt;chr&gt;, route_name &lt;chr&gt;</code></pre>
+<ul>
+<li>There are 60 distinct stations that serve the A train.</li>
+<li>Of the stations that serve the A train, 17.</li>
+</ul>
 </div>
 
 
