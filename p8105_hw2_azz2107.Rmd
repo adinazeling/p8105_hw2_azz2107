@@ -40,4 +40,24 @@ transit_tidy_df
 ```
 
 * There are `r nrow(filter(distinct(transit_tidy_df, station_name, line, route_name), route_name == "A"))` distinct stations that serve the A train.
-* Of the stations that serve the A train, `r nrow(filter(distinct(transit_tidy_df, station_name, line, route_name, ada), route_name == "A", ada == TRUE))` are ADA compliant.
+* Of the stations that serve the A train, `r nrow(filter(distinct(transit_tidy_df, station_name, line, route_name, ada), route_name == "A", ada == TRUE))` are ADA compliant.  
+
+# Problem 2
+
+## Mr. Trashwheel Dataset
+
+```{r mr_trash_df}
+# Load and clean Mr. Trash Wheel dataset
+mr_trash_df = readxl::read_excel(
+  "./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", 
+  range = cellranger::cell_cols("A:N")) %>% 
+  janitor::clean_names() %>% 
+  filter(!is.na(date)) %>% 
+  mutate(sports_balls = as.integer(round(sports_balls)))
+
+mr_trash_df
+```
+
+In the Mr. Trash Wheel dataset, there are `r nrow(mr_trash_df)` observations and `r ncol(mr_trash_df)` variables. The median number of sports balls collected by the dumpster in 2016 is...
+
+## Precipitation Dataset
