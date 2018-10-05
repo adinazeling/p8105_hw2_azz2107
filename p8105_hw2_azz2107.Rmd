@@ -5,14 +5,21 @@ date: "September 30, 2018"
 output: md_document
 ---
 
+# P8105 Homework 2
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%")
 library(dplyr)
 library(tidyverse)
 library(p8105.datasets)
+library(ggplot2)
 ```
 
-# Problem 1 - NYC Transit Dataset
+## Problem 1 - NYC Transit Dataset
 
 ```{r transit_df, message = FALSE}
 # Read and clean NYC Transit dataset
@@ -43,9 +50,9 @@ transit_tidy_df
 * There are `r nrow(filter(distinct(transit_tidy_df, station_name, line, route_name), route_name == "A"))` distinct stations that serve the A train.
 * Of the stations that serve the A train, `r nrow(filter(distinct(transit_tidy_df, station_name, line, route_name, ada), route_name == "A", ada == TRUE))` are ADA compliant.  
 
-# Problem 2
+## Problem 2
 
-## Mr. Trashwheel Dataset
+### Mr. Trashwheel Dataset
 
 ```{r mr_trash_df}
 # Load and clean Mr. Trash Wheel dataset
@@ -59,7 +66,7 @@ mr_trash_df
 
 In the Mr. Trash Wheel dataset, there are `r nrow(mr_trash_df)` observations and `r ncol(mr_trash_df)` variables. The median number of sports balls collected by the dumpster in 2016 is `r median(filter(mr_trash_df, year == 2016)$sports_balls)`. Since 2014, the Mr. Trash Wheel has collected `r sum(mr_trash_df$volume_cubic_yards)` which is about `r sum(mr_trash_df$weight_tons)/(nrow(distinct(mr_trash_df, year)))`tons per year.
 
-## Precipitation Dataset
+### Precipitation Dataset
 
 ```{r precip_df}
 # Load and clean Precipitation 2017 Dataset
@@ -85,7 +92,7 @@ prcp_tidy_df
 
 In the joined 2016 and 2017 precipitation dataset, there are `r nrow(prcp_tidy_df)` observations and `r ncol(prcp_tidy_df)` variables which include month, total precipitation, and year. The total precipitation in 2017 was `r sum(filter(prcp_tidy_df, year == 2017)$total_prcp)` inches. 
 
-# Problem 3 - BRFSS Dataset
+## Problem 3 - BRFSS Dataset
 
 ```{r brfss_df}
 # Load and clean BRFSS dataset
@@ -98,5 +105,35 @@ brfss_df = brfss_smart2010 %>%
   mutate(excellent_very_good = excellent + very_good)
 
 brfss_df
+```
+
+The BRFSS dataset contains information on how individuals in the United States rated their overall health on a scale of poor to excellent. This dataset has `r nrow(brfss_df)` observations and `r ncol(brfss_df)`. Surveys were taken in `r nrow(distinct(brfss_df, locationdesc))` distinct locations within the United States. Of these locations, `r nrow(distinct(brfss_df, locationabbr))` states including Washington D.C. were included. In 2002, the median of the "Excellent" response value was `r median(filter(brfss_df, year == 2002)$excellent, na.rm = TRUE)`%. 
+
+```{r ggplots}
+# Histogram of "Excellent" response values in 2002
+ggplot(filter(brfss_df, year == 2002), aes(x = excellent)) + 
+  geom_histogram() +
+  labs(
+    title = "Histogram of 'Excellent' response values in 2002", 
+    caption = "Data from BRFSS dataset"
+  ) 
+
+# Save histogram as pdf
+ggsave("hist_hw2.pdf")
+
+# Scatterplot of "Excellent" response values in New York County and Queens County from 2002 to 2010
+ggplot(filter(brfss_df, locationdesc == "NY - New York County" | locationdesc == "NY - Queens County"), aes(x = year, y = excellent)) + 
+  geom_point(aes(color = locationdesc), alpha = .8) + 
+  labs(
+    title = "Proportion of 'Excellent' responses in New York and Queens Country between 2002 and 2010",
+    x = "Year", 
+    y = "Proportion of 'Excellent responses'",
+    caption = "BRFSS dataset"
+  ) + 
+  theme(legend.position = "bottom")
+
+# Save scatterplot as pdf
+ggsave("scatterplot_hw2.pdf")
+
 ```
 
