@@ -48,9 +48,7 @@ transit_tidy_df
 
 ```{r mr_trash_df}
 # Load and clean Mr. Trash Wheel dataset
-mr_trash_df = readxl::read_excel(
-  "./data/HealthyHarborWaterWheelTotals2017-9-26.xlsx", 
-  range = cellranger::cell_cols("A:N")) %>% 
+mr_trash_df = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", range = cellranger::cell_cols("A:N")) %>% 
   janitor::clean_names() %>% 
   filter(!is.na(date)) %>% 
   mutate(sports_balls = as.integer(round(sports_balls)))
@@ -58,6 +56,31 @@ mr_trash_df = readxl::read_excel(
 mr_trash_df
 ```
 
-In the Mr. Trash Wheel dataset, there are `r nrow(mr_trash_df)` observations and `r ncol(mr_trash_df)` variables. The median number of sports balls collected by the dumpster in 2016 is...
+In the Mr. Trash Wheel dataset, there are `r nrow(mr_trash_df)` observations and `r ncol(mr_trash_df)` variables. The median number of sports balls collected by the dumpster in 2016 is `r median(filter(mr_trash_df, year == 2016)$sports_balls)`. Since 2014, the Mr. Trash Wheel has collected `r sum(mr_trash_df$volume_cubic_yards)` which is about `r sum(mr_trash_df$weight_tons)/(nrow(distinct(mr_trash_df, year)))`tons per year.
 
 ## Precipitation Dataset
+
+```{r precip_df}
+# Load and clean Precipitation 2017 Dataset
+prcp_2017_df = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "2017 Precipitation", skip = 1) %>% 
+  janitor::clean_names() %>% 
+  filter(!is.na(month)) %>% 
+  mutate(total_prcp = total, year = 2017) %>% 
+  select(month, total_prcp, year)
+  
+
+# Load and clean Precipitation 2016 Dataset
+prcp_2016_df = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "2016 Precipitation", skip = 1) %>% 
+  janitor::clean_names() %>% 
+  filter(!is.na(month)) %>% 
+  mutate(total_prcp = total, year = 2016) %>% 
+  select(month, total_prcp, year)
+
+# Combine 2016 and 2017 precipitation datasets
+prcp_tidy_df = bind_rows(prcp_2016_df, prcp_2017_df) %>% 
+  mutate(month = month.name[month])
+
+prcp_tidy_df
+```
+
+In the joined 2016 and 2017 precipitation dataset, there are `r nrow(prcp_tidy_df)` observations and `r ncol(prcp_tidy_df)` variables which include month, total precipitation, and year. The total precipitation in 2017 was `r sum(filter(prcp_tidy_df, year == 2017)$total_prcp)` inches. 
