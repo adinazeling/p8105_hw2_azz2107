@@ -33,7 +33,7 @@ transit_df
 
 The NYC Transit dataset includes information on the exits and entrances of various subway stations in the NYC transit network. The variables used to describe this information include railway lines, station names, locations, routes served, entries, entrance types, vending machines, and ADA compliance. Thus far, the data cleaning steps include cleaning the variable names, selecting relevant variables to keep in the dataset, and recoding the *entry* variable into a logical type (TRUE vs. FALSE). The dimension of this dataset is `r nrow(transit_df)` observations with `r ncol(transit_df)` variables.  
   
-Tidiness depends on what information you are looking to get out of the dataset. The part of the NYC transit dataset I would consider untidy are the route numbers. The variable names of route numbers should instead be used as values, especially if you are are looking to compare individual subway stations. 
+A tidy dataset is a way to organize your data for analysis. Tidiness can depend on what information you are looking to get out of the dataset but fundamentally it requires that each variable should have their own column and each observation its own row. In the NYC Transit dataset, if we choose to analyze routes we would not consider this a tidy data. The route variable is spread across multiple columns. For the sake of analysis, it should be condensed into one variable using the gather function in R. The part of the NYC transit dataset I would consider untidy are the route numbers.
 
 * There are `r dim(distinct(transit_df, station_name, line))[1]` distinct stations.  
 * There are `r nrow(filter(transit_df, ada == TRUE))` stations that are ADA compliant.  
@@ -64,7 +64,7 @@ mr_trash_df = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.
 mr_trash_df
 ```
 
-In the Mr. Trash Wheel dataset, there are `r nrow(mr_trash_df)` observations and `r ncol(mr_trash_df)` variables. The median number of sports balls collected by the dumpster in 2016 is `r median(filter(mr_trash_df, year == 2016)$sports_balls)`. Since 2014, the Mr. Trash Wheel has collected `r sum(mr_trash_df$volume_cubic_yards)` which is about `r sum(mr_trash_df$weight_tons)/(nrow(distinct(mr_trash_df, year)))`tons per year.
+The Mr. Trash Wheel dataset contains information on trash removed from the Inner Harbor in Baltimore, Maryland by a "water-wheel vessel". The dataset contains `r nrow(mr_trash_df)` observations and `r ncol(mr_trash_df)` variables. The median number of sports balls collected by the dumpster in 2016 is `r median(filter(mr_trash_df, year == 2016)$sports_balls)`. It has also collected a total of `r sum(mr_trash_df$glass_bottles)` glass bottles, `r sum(mr_trash_df$plastic_bottles)` plastic bottles, and `r sum(mr_trash_df$polystyrene)` polystyrene items. Since May 2014, the Mr. Trash Wheel has collected `r sum(mr_trash_df$volume_cubic_yards)` which is about `r sum(mr_trash_df$weight_tons)/(nrow(distinct(mr_trash_df, year)))`tons per year.
 
 ### Precipitation Dataset
 
@@ -90,7 +90,7 @@ prcp_tidy_df = bind_rows(prcp_2016_df, prcp_2017_df) %>%
 prcp_tidy_df
 ```
 
-In the joined 2016 and 2017 precipitation dataset, there are `r nrow(prcp_tidy_df)` observations and `r ncol(prcp_tidy_df)` variables which include month, total precipitation, and year. The total precipitation in 2017 was `r sum(filter(prcp_tidy_df, year == 2017)$total_prcp)` inches. 
+In the joined 2016 and 2017 precipitation dataset, there are `r nrow(prcp_tidy_df)` observations and `r ncol(prcp_tidy_df)` variables which include month, total precipitation, and year. The total precipitation in 2017 was `r sum(filter(prcp_tidy_df, year == 2017)$total_prcp)` inches and in 2016 it was `r sum(filter(prcp_tidy_df, year == 2016)$total_prcp)` inches. The total precipitation in a month ranges from as little as `r min(prcp_tidy_df$total_prcp)` inches to a maximum of `r max(prcp_tidy_df$total_prcp)` inches between 2016 and 2017. On average it rained `r mean(filter(prcp_tidy_df, year == 2016)$total_prcp)` inches per month in 2016 and `r mean(filter(prcp_tidy_df, year == 2017)$total_prcp)` inches per month in 2017.
 
 ## Problem 3 - BRFSS Dataset
 
@@ -107,7 +107,16 @@ brfss_df = brfss_smart2010 %>%
 brfss_df
 ```
 
-The BRFSS dataset contains information on how individuals in the United States rated their overall health on a scale of poor to excellent. This dataset has `r nrow(brfss_df)` observations and `r ncol(brfss_df)`. Surveys were taken in `r nrow(distinct(brfss_df, locationdesc))` distinct locations within the United States. Of these locations, `r nrow(distinct(brfss_df, locationabbr))` states including Washington D.C. were included. In 2002, the median of the "Excellent" response value was `r median(filter(brfss_df, year == 2002)$excellent, na.rm = TRUE)`%. 
+The BRFSS dataset contains information on how individuals in the United States rated their overall health on a scale of poor to excellent. This dataset has `r nrow(brfss_df)` observations and `r ncol(brfss_df)` variables.  
+
+```{r state_mode}
+state_mode = count(brfss_df,locationabbr) %>%
+  arrange(desc(n))
+```
+
+Surveys were taken in `r nrow(distinct(brfss_df, locationdesc))` distinct locations within the United States. Of these locations, `r nrow(distinct(brfss_df, locationabbr))` states including Washington D.C. were included. The state observed the most was `r state_mode$locationabbr[1]`.  
+
+In 2002, the median of the "Excellent" response value was `r median(filter(brfss_df, year == 2002)$excellent, na.rm = TRUE)`%. 
 
 ```{r ggplots}
 # Histogram of "Excellent" response values in 2002
@@ -124,8 +133,8 @@ ggsave("hist_hw2.pdf")
 # Scatterplot of "Excellent" response values in New York County and Queens County from 2002 to 2010
 ggplot(filter(brfss_df, locationdesc == "NY - New York County" | locationdesc == "NY - Queens County"), aes(x = year, y = excellent)) + 
   geom_point(aes(color = locationdesc), alpha = .8) + 
+  ggtitle("Proportion of 'Excellent' responses between 2002 and 2010") + 
   labs(
-    title = "Proportion of 'Excellent' responses in New York and Queens Country between 2002 and 2010",
     x = "Year", 
     y = "Proportion of 'Excellent responses'",
     caption = "BRFSS dataset"
