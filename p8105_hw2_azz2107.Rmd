@@ -9,6 +9,7 @@ output: md_document
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(tidyverse)
+library(p8105.datasets)
 ```
 
 # Problem 1 - NYC Transit Dataset
@@ -67,7 +68,6 @@ prcp_2017_df = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28
   filter(!is.na(month)) %>% 
   mutate(total_prcp = total, year = 2017) %>% 
   select(month, total_prcp, year)
-  
 
 # Load and clean Precipitation 2016 Dataset
 prcp_2016_df = readxl::read_excel("./data/HealthyHarborWaterWheelTotals2018-7-28.xlsx", sheet = "2016 Precipitation", skip = 1) %>% 
@@ -84,3 +84,19 @@ prcp_tidy_df
 ```
 
 In the joined 2016 and 2017 precipitation dataset, there are `r nrow(prcp_tidy_df)` observations and `r ncol(prcp_tidy_df)` variables which include month, total precipitation, and year. The total precipitation in 2017 was `r sum(filter(prcp_tidy_df, year == 2017)$total_prcp)` inches. 
+
+# Problem 3 - BRFSS Dataset
+
+```{r brfss_df}
+# Load and clean BRFSS dataset
+brfss_df = brfss_smart2010 %>% 
+  janitor::clean_names() %>% 
+  filter(topic == "Overall Health") %>% 
+  select(year:locationdesc, response, data_value) %>% 
+  spread(key = response, value = data_value) %>% 
+  janitor::clean_names() %>% 
+  mutate(excellent_very_good = excellent + very_good)
+
+brfss_df
+```
+
